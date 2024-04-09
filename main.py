@@ -16,7 +16,7 @@ secret = os.getenv('SECRET')
 if secret is None:
     raise Exception('SECRET not found in .env file')
 
-conn = sqlite3.connect('database.db')
+conn = sqlite3.connect('database.db', check_same_thread=False)
 cursor = conn.cursor()
 
 def create_tables():
@@ -42,6 +42,7 @@ def read_root():
 
 @app.get("/account/create")
 def create_account(username: str, email: str, password: str):
+    email = email.lower()
     if has_profanity(username):
         return {"success": False, "message": "Username contains profanity"}
     if not is_email(email):
@@ -63,6 +64,7 @@ def create_account(username: str, email: str, password: str):
 
 @app.get("/account/login")
 def login_account(email: str, password: str):
+    email = email.lower()
     if not is_email(email):
         return {"success": False, "message": "Invalid email address"}
 
@@ -103,6 +105,8 @@ def update_stats_account(token: str, pancakes: int, total_pancakes: int):
     
     conn.commit()
 
+    return {"success": True, "message": "Stats updated"}
+
 @app.get("/leaderboard")
 def leaderboard():
     cursor.execute('''
@@ -113,7 +117,17 @@ def leaderboard():
     
     data = cursor.fetchall()
 
-    return {"success": True, "data": data}
+    pretty_data = []
+    for row in data:
+        pretty_row = {
+            "username": row[0],
+            "pancakes": row[1],
+            "total_pancakes": row[2]
+        }
+
+        pretty_data.append(pretty_row)
+
+    return {"success": True, "message": "Fetched leaderboard", "data": pretty_data}
 
 
 # run using:
