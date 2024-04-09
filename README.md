@@ -28,3 +28,8 @@ Updates the stats of an account. Requires the following GET parameters:
 
 ### GET /leaderboard
 Returns the leaderboard.
+
+returns a JSON list with the following fields:
+- `username`: The username of the account.
+- `pancakes`: The amount of pancakes the account has.
+- `total_pancakes`: The total amount of pancakes the account has earned.
